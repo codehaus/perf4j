@@ -24,7 +24,6 @@ import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.text.DecimalFormatSymbols;
 
 /**
  * This implementation of StatisticsChartGenerator creates a chart URL in the format expected by the Google Chart API.
@@ -278,8 +277,8 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
             return "";
         }
 
-        //set up the axis labels - we use the US decimal format locale to ensure the decimal separator is . and not ,
-        DecimalFormat decimalFormat = new DecimalFormat("##0.0", new DecimalFormatSymbols(Locale.US));
+        //set up the axis labels
+        DecimalFormat decimalFormat = new DecimalFormat("##0.0");
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
         //the y-axis label goes from 0 to the maximum data value
@@ -375,7 +374,7 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
         StringBuilder retVal = new StringBuilder();
 
         double valueRange = maxPossibleValue - minPossibleValue;
-        DecimalFormat formatter = new DecimalFormat("##0.0", new DecimalFormatSymbols(Locale.US));
+        DecimalFormat formatter = new DecimalFormat("##0.0");
 
         for (Iterator<Number> iter = values.iterator(); iter.hasNext();) {
             Number value = iter.next();
