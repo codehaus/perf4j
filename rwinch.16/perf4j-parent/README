@@ -1,0 +1,11 @@
+Thanks for the quick response, sorry I did not return the favor. I have finally committed the changes. A summary is below:
+
+I have created perfj4dao and a jdbc implementation for the dao. There are integration tests for MySQL, H2 Database, HSQL, & Oracle10g. With that said there is some setup required to do the installs. You can find the required setup at perf4j-parent/src/site/apt/contributors.apt There is also an example of how to persist & graph with the database in the examples modules. Details on deploying it with jetty are at perf4j-parent/examples/dao-graphing-servlet/src/site/apt/running.apt I would like to get some feeback from the community on what is there and not there. Especially on how we should allow queries to create graphs. I have given some thought for it and outlined it in the javadoc.
+
+I've noticed that there is some strange behavior in the way that the graphs are being displayed. The datapoints do not seem to connect correctly. I think this is due to the ordering of the results returned from the database, but have not investigated further. Some example graphs I got are below.
+
+http://chart.apis.google.com/chart?cht=lxy&chtt=TPS&chs=750x400&chxt=x,x,y&chd=t:100.0,16.7,41.7,8.3,58.3,0.0,25.0,33.3|20.0,60.0,60.0,60.0,60.0,100.0,80.0,40.0&chco=ff0000&chm=d,ff0000,0,-1,5.0&chdl=firstBlock&chxr=2,0,0.5&chxl=0:|11:04:20|11:02:40|11:03:10|11:02:30|11:03:30|11:02:20|11:02:50|11:03:00|1:|Time&chxp=0,100.0,16.7,41.7,8.3,58.3,0.0,25.0,33.3|1,50&chg=14.3,10
+
+http://chart.apis.google.com/chart?cht=lxy&chtt=TPS&chs=750x400&chxt=x,x,y&chd=t:0.7,0.8,0.1,0.0,100.0,0.3|42.9,14.3,100.0,14.3,28.6,42.9&chco=ff0000&chm=d,ff0000,0,-1,5.0&chdl=firstBlock&chxr=2,0,0.7&chxl=0:|14:06:00|14:06:10|14:05:20|14:05:10|16:11:30|14:05:30|1:|Time&chxp=0,0.7,0.8,0.1,0.0,100.0,0.3|1,50&chg=20.0,10
+
+PS: I have problems with some of the pre-existing tests that fail in trunk. Sometimes they pass others and sometimes they fail.
