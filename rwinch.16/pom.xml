@@ -1,0 +1,202 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.perf4j</groupId>
+	<artifactId>perf4j-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>0.9.12-SNAPSHOT</version>
+	<!--
+		TODO clearly this needs cleaned up. As the perf4j module doesn't need
+		everything in it and variables should be used. I hope that this will
+		help by including examples in svn and allow users to build them with
+		maven.
+	-->
+    <name>Perf4J Parent</name>
+    <description>Performance statistics logging and monitoring toolkit extension to log4j and the java.util.logging framework.</description>
+    <url>http://www.perf4j.org</url>
+    <inceptionYear>2008</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>LICENSE.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>perf4j.org</name>
+        <url>http://www.perf4j.org</url>
+    </organization>
+
+    <ciManagement>
+        <system>TeamCity</system>
+        <url>http://managed.on.a.private.build.server</url>
+    </ciManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Perf4j Users</name>
+            <post>user@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.user</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j Dev</name>
+            <post>dev@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j SCM</name>
+            <post>scm@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.scm</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j Announce</name>
+            <post>announce@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.announce</archive>
+        </mailingList>
+    </mailingLists>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.codehaus.org/browse/PERFFORJ</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>adevine</id>
+            <name>Alex Devine</name>
+            <email>adevine@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>despot</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>dchakraborty</id>
+            <name>Doran Chakraborty</name>
+            <email>dchakraborty@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>cberry</id>
+            <name>Chris Berry</name>
+            <email>chris@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>despot</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>bjacob</id>
+            <name>Bryon Jacob</name>
+            <email>bryon@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>despot</role> 
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>alexvictoria</id>
+            <name>Alex Victoria</name>
+            <email>alexv@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>        
+        <developer>
+            <id>rwinch</id>
+            <name>Rob Winch</name>
+            <email>rwinch@gmail.com</email>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Patrick Moore</name>
+            <url>http://www.sworddance.com/blog/</url>
+        </contributor>
+        <contributor>
+            <name>Nicholas Whitehead</name>
+            <url>https://helios.dev.java.net/</url>
+        </contributor>
+    </contributors>
+
+    <scm>
+        <connection>scm:svn:http://svn.codehaus.org/perf4j/</connection>
+        <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/</developerConnection>
+        <url>http://fisheye.codehaus.org/browse/perf4j</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>Apache iBiblio Mirror</id>
+            <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository/</url>
+        </repository>
+        <repository>
+            <id>Maven2</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>Codehaus</id>
+            <url>http://repository.codehaus.org/</url>
+        </repository>
+        <repository>
+            <id>Apache Incubator</id>
+            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Codehaus</id>
+            <url>http://repository.codehaus.org/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Codehaus Mojo</id>
+            <url>http://repository.codehaus.org/org/codehaus/mojo/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Codehaus Snapshots</id>
+            <url>http://snapshots.repository.codehaus.org/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Maven2</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven snapshots</id>
+            <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
+        </pluginRepository>
+    </pluginRepositories>
+	
+	<modules>
+		<module>perf4j</module>
+		<module>examples</module>
+	</modules>
+</project>

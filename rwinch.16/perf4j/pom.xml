@@ -119,6 +119,15 @@
             <roles>
                 <role>developer</role>
             </roles>
+        </developer>        
+        <developer>
+            <id>rwinch</id>
+            <name>Rob Winch</name>
+            <email>rwinch@gmail.com</email>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
         </developer>
     </developers>
 
@@ -294,6 +303,43 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.5.6</version>
             <scope>test</scope>
+        </dependency>
+                
+        <!-- license ok? http://www.jmock.org/license.html -->        
+        <dependency>
+        	<groupId>org.jmock</groupId>
+        	<artifactId>jmock</artifactId>
+        	<version>2.5.1</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>com.h2database</groupId>
+        	<artifactId>h2</artifactId>
+        	<version>1.1.112</version>
+        	<scope>test</scope>
+        </dependency>
+        <!-- is this license ok? http://hsqldb.org/web/hsqlLicense.html  -->
+        <dependency>
+        	<groupId>hsqldb</groupId>
+        	<artifactId>hsqldb</artifactId>
+        	<version>1.8.0.10</version>
+        	<scope>test</scope>
+        </dependency>
+		<!--
+			NOTE you will need to do a manual install of the oracle driver! See
+			message in maven console for where to download and how to install
+		-->
+        <dependency>
+		    <groupId>com.oracle</groupId>
+		    <artifactId>ojdbc14</artifactId>
+		    <version>10.2.0.4.0</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>mysql</groupId>
+        	<artifactId>mysql-connector-java</artifactId>
+        	<version>5.1.6</version>
+        	<scope>test</scope>
         </dependency>
     </dependencies>
 
