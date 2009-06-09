@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+                             http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <servlet>
+        <servlet-name>perf4j</servlet-name>
+        <servlet-class>org.perf4j.dao.servlet.GraphingServlet</servlet-class>        
+		<!--
+			The graphNames parameter determines which graphs to expose. See the
+			javadoc of this class for details on the format.
+		-->
+        <init-param>
+            <param-name>graphNames</param-name>
+            <param-value>Mean:firstBlock:secondBlock,TPS:firstBlock:secondBlock</param-value>
+        </init-param>
+        <init-param>
+			<param-name>DatabaseUrl</param-name>
+			<param-value>jdbc:h2:target/h2/perf4j</param-value>
+		</init-param>
+		<init-param>
+			<param-name>DatabaseUsername</param-name>
+			<param-value>sa</param-value>
+		</init-param>
+		<init-param>
+			<param-name>DatabasePassword</param-name>
+			<param-value></param-value>
+		</init-param>
+		<init-param>
+			<param-name>Driver</param-name>
+			<param-value>org.h2.Driver</param-value>
+		</init-param>		
+		<init-param>
+			<param-name>Schema</param-name>
+			<param-value>h2.ddl</param-value>
+		</init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+	<servlet>
+        <servlet-name>generate-perf4j</servlet-name>
+        <servlet-class>org.perf4j.examples.j2ee.Log4jGenerateExampleStatsServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>        
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>perf4j</servlet-name>
+        <url-pattern>/perf4j</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>generate-perf4j</servlet-name>
+        <url-pattern>/generate</url-pattern>
+    </servlet-mapping>
+</web-app>

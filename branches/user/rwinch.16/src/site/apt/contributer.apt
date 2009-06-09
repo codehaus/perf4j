@@ -1,0 +1,83 @@
+   ----
+   Contributor Guide
+   ----
+
+Building Perf4j
+
+  These steps detail how to build perf4j using {{{http://maven.apache.org}maven}}.
+  
+*Manually Installing ojdbc14
+
+  [[1]] Oracle does not include it's ojdbc driver in the central repository and requires a manual maven install. You can download ojdbc14.jar at {{{http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html}Oracle's website}}.
+
+  [[2]] Installing the file can be done using the command below. For details view {{{http://maven.apache.org/plugins/maven-install-plugin/}maven's documentation}}.
+  
+----------------------------
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar -Dfile=/path/to/file/ojdbc14.jar
+----------------------------
+
+*Seting up an Oracle DB
+
+  An Oracle database will need to be setup in order to perform the integration tests. The database must be available at the url <<jdbc:oracle:thin:@localhost:1521:xe>>,
+  with the username <<perf4j>>, and password <<per4j>>.
+
+**Ubuntu Oracle XE Setup
+
+  [[1]] You can setup Oracle XE using the this post on {{{http://www.oracle.com/technology/tech/linux/install/xe-on-kubuntu.html}Oracle's site}}. Note: This works for for Jaunty.
+
+  [[2]] Configure it using
+
+----------------------------
+sudo /etc/init.d/oracle-xe configure
+----------------------------
+  
+  [[3]] Using username system and the password you specified in the previous step, login at {{{http://localhost:8080/apex}http://localhost:8080/apex}}
+
+  [[4]] Create a user with username perf4j and password perf4j
+
+*Setting up a MySQL DB
+
+  A MySQL database will be need to be setup in order to perform the integration tests. The database must be available at the url <<jdbc:mysql://localhost:3306/perf4j>>
+  with the username <<perf4j>>, and password <<perf4j>>.
+
+**Ubuntu MySQL Setup
+
+  [[1]] Install using
+
+---------------------------
+sudo apt-get install mysql-server
+---------------------------
+
+  [[2]] Setup using the following
+
+---------------------------
+
+Login to the database:
+ 
+$ mysql -u root -p 
+Enter password:
+  
+Create the database
+  
+mysql> create database perf4j;
+Query OK, 1 row affected (0.00 sec)
+  
+Allow perf4j user to connect to the server from localhost using the
+password perf4j.
+  
+mysql> grant usage on *.* to perf4j@localhost identified by 'perf4j';
+Query OK, 0 rows affected (0.00 sec)
+  
+Grant all privileges on the perf4j database to this user:
+  
+mysql> grant all privileges on perf4j.* to perf4j@localhost ;
+Query OK, 0 rows affected (0.00 sec)
+---------------------------
+
+*Performing mvn install
+
+  After the setup has been done ensure each database is running and perform a maven install on perf4j-parent. Please note that the database schema's will automatically be created and droped. Builds should be done with maven 2.0.9 and Java 1.5.
+
+---------------------------
+mvn clean install
+---------------------------
