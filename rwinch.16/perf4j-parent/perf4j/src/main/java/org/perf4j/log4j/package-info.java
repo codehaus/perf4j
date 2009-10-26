@@ -57,21 +57,9 @@
  *   &lt;appender name="CoalescingStatistics" class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender"&gt;
  *     &lt;param name="TimeSlice" value="10000"/&gt; &lt;!-- 10 second time slice --&gt;
  *     &lt;!-- The appenders defined below are attached here --&gt;
- *     &lt;appender-ref ref="Perf4jDaoAppender"/&gt;
  *     &lt;appender-ref ref="Perf4jJMX"/&gt;
  *     &lt;appender-ref ref="PageTimes"/&gt;
  *     &lt;appender-ref ref="PageTPS"/&gt;
- *   &lt;/appender&gt;
- *   
- *   &lt!-- 
- *     This appender sends StopWatches and GroupedTimingStatistics to the database. Specifically this is an example
- *     of a mysql connection. 
- *   --&gt;
- *   &lt;appender name=&quot;Perf4jDaoAppender&quot; class=&quot;org.perf4j.log4j.Perf4jDaoAppender&quot;&gt;
- *     &lt;param name=&quot;DatabaseUrl&quot; value=&quot;jdbc:mysql://localhost:3306/perf4j&quot;/&gt;
- *     &lt;param name=&quot;DatabaseUser&quot; value=&quot;username&quot;/&gt;
- *     &lt;param name=&quot;DatabasePassword&quot; value=&quot;password&quot;/&gt;
- *     &lt;param name=&quot;Driver&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;
  *   &lt;/appender&gt;
  *
  *   &lt;!-- This appender exposes the timing statistics as an MBean through the default platform MBean server --&gt;

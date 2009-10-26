@@ -33,13 +33,12 @@ import java.util.concurrent.TimeUnit;
  * @see org.perf4j.log4j.AsyncCoalescingStatisticsAppender
  */
 public class GenericAsyncCoalescingStatisticsAppender {
-
+	
     /**
-     * The Perf4jEventHandler defines a callback interface so that
-     * logging-framework-specific implementations can decide what to do with the
-     * coalesced GroupedTimingStatistics and StopWatch.
+     * The GroupedTimingStatisticsHandler defines a callback interface so that logging-framework-specific
+     * implementations can decide what to do with the coalesced GroupedTimingStatistics.
      */
-    public interface Perf4jEventHandler {
+    public interface GroupedTimingStatisticsHandler {
         /**
          * This callback method is called for each GroupedTimingStatistics instance that is formed by coalescing
          * individual StopWatch messages from the logs. Implementations will most likely pass this instance to
@@ -49,15 +48,6 @@ public class GenericAsyncCoalescingStatisticsAppender {
          */
         void handle(GroupedTimingStatistics statistics);
 
-	/**
-	 * This callback method is called for each StopWatch that is parsed from
-	 * the messages passed in. Implementations will likely pass this
-	 * instance to downstream appenders or handlers.
-	 * 
-	 * @param stopWatch the stopWatch that was parsed
-	 */
-        void handle(StopWatch stopWatch);
-
         /**
          * This method is called whenever an error occurs that should be handled in a logging-framework specific
          * manner.
@@ -66,7 +56,40 @@ public class GenericAsyncCoalescingStatisticsAppender {
          */
         void error(String errorMessage);
     }
-    
+
+	/**
+	 * The StopWatchHandler defines a callback interface so that
+	 * logging-framework-specific implementations can decide what to do with the
+	 * StopWatch Objects.
+	 */
+	public interface StopWatchEventHandler {
+		/**
+		 * This callback method is called for each StopWatch that is parsed from
+		 * the messages passed in. Implementations will likely pass this
+		 * instance to downstream appenders or handlers.
+		 * 
+		 * @param stopWatch
+		 *            the stopWatch that was parsed
+		 */
+		void handle(StopWatch stopWatch);
+		
+
+		/**
+         * This method is called whenever an error occurs that should be handled in a logging-framework specific
+         * manner.
+         *
+         * @param errorMessage The message that describes the error.
+         */
+        void error(String errorMessage);
+	}
+	
+	/**
+	 * The Perf4jEventHandler defines a callback interface so that
+	 * logging-framework-specific implementations can decide what to do with the
+	 * {@link StopWatch} and {@link GroupedTimingStatistics} Objects.
+	 */
+	public interface Perf4jEventHandler extends StopWatchEventHandler, GroupedTimingStatisticsHandler {		
+	}
 
     // --- configuration options ---
     /**
@@ -92,11 +115,14 @@ public class GenericAsyncCoalescingStatisticsAppender {
     private String stopWatchParserClassName = StopWatchParser.class.getName();
 
     // --- contained objects ---
-    /**
-     * All GroupedTimingStatistics created by this appender are passed to the handler object for further handling.
-     * This variable is set by the param passed to the start() method.
-     */
+    
+	/**
+	 * All {@link StopWatch} and {@link GroupedTimingStatistics} objects created
+	 * by this appender are passed to the handler object for further handling.
+	 * This variable is set by the param passed to the start() method.
+	 */
     private Perf4jEventHandler handler = null;
+        
     /**
      * StopWatch log messages are pushed onto this queue, which is initialized in start().
      */
@@ -232,36 +258,64 @@ public class GenericAsyncCoalescingStatisticsAppender {
     public int getNumDiscardedMessages() {
         return numDiscardedMessages;
     }
-    
-    /**
-     * Returns the non-null handler
-     * 
-     * @return the handler member variable.
-     * @throws IllegalStateException if handler is null.
-     */
-    private Perf4jEventHandler getHandler() {
-	final Perf4jEventHandler result = this.handler;
-	if(result == null) {
-	    throw new IllegalStateException("handler cannot be null. Call start method first.");
-	}
-	return result;
-    }
-    
-    /**
-     * Returns the non-null stopWatchParser
-     * 
-     * @return the stopWatchParser member variable
-     * @throws IllegalStateException if stopWatchParser is null
-     */
-    private StopWatchParser getStopWatchParser() {
-	final StopWatchParser result = this.stopWatchParser;
-	if(result == null) {
-	    throw new IllegalStateException("stopWatchParser cannot be null. Call start method first.");
-	}
-	return result;
-    }
 
+	/**
+	 * Returns the non-null handler
+	 * 
+	 * @return the handler member variable.
+	 * @throws IllegalStateException
+	 *             if handler is null.
+	 */
+	private Perf4jEventHandler getHandler() {
+		final Perf4jEventHandler result = this.handler;
+		if (result == null) {
+			throw new IllegalStateException(
+					"handler cannot be null. Call start method first.");
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the non-null stopWatchParser
+	 * 
+	 * @return the stopWatchParser member variable
+	 * @throws IllegalStateException
+	 *             if stopWatchParser is null
+	 */
+	private StopWatchParser getStopWatchParser() {
+		final StopWatchParser result = this.stopWatchParser;
+		if (result == null) {
+			throw new IllegalStateException(
+					"stopWatchParser cannot be null. Call start method first.");
+		}
+		return result;
+	}
+	
     // --- main lifecycle methods ---
+    /**
+     * The start method should only be called once, before the append method is called, to initialize options.
+     *
+     * @param handler The GroupedTimingStatisticsHandler used to process GroupedTimingStatistics created by aggregating
+     *                StopWatch log message.
+     * @deprecated use {@link #start(Perf4jEventHandler)} instead.
+     */
+    public void start(final GroupedTimingStatisticsHandler handler) {
+    	if(handler == null) {
+    		throw new IllegalArgumentException("handler cannot be null");
+    	}
+    	start(new Perf4jEventHandler() {
+			public void error(String errorMessage) {
+				handler.error(errorMessage);
+			}
+			public void handle(GroupedTimingStatistics statistics) {
+				handler.handle(statistics);
+			}
+			public void handle(StopWatch stopWatch) {
+				// do nothing
+			}    		
+    	});
+    }
+    
     /**
      * The start method should only be called once, before the append method is
      * called, to initialize options.
@@ -274,24 +328,26 @@ public class GenericAsyncCoalescingStatisticsAppender {
      *            
      * @throws IllegalArgumentException if handler is null.           
      */
-    public void start(Perf4jEventHandler handler) {	
-	if(handler == null) {
-	    throw new IllegalArgumentException("handler cannot be null");
+	public void start(Perf4jEventHandler handler) {
+		if (handler == null) {
+			throw new IllegalArgumentException("handler cannot be null");
+		}
+		// start should only be called once, but just in case:
+		if (drainingThread != null) {
+			stopDrainingThread();
+		}
+
+		this.handler = handler;
+		stopWatchParser = newStopWatchParser();
+		numDiscardedMessages = 0;
+		loggedMessages = new ArrayBlockingQueue<String>(getQueueSize());
+
+		drainingThread = new Thread(new Dispatcher(),
+				"perf4j-async-stats-appender-sink-" + getName());
+		drainingThread.setDaemon(true);
+		drainingThread.start();
 	}
-        //start should only be called once, but just in case:
-        if (drainingThread != null) {
-            stopDrainingThread();
-        }
 
-        this.handler = handler;
-        stopWatchParser = newStopWatchParser();
-        numDiscardedMessages = 0;
-        loggedMessages = new ArrayBlockingQueue<String>(getQueueSize());
-
-        drainingThread = new Thread(new Dispatcher(), "perf4j-async-stats-appender-sink-" + getName());
-        drainingThread.setDaemon(true);
-        drainingThread.start();
-    }
 
     /**
      * The append method should be called each time a StopWatch log message is handled by the logging framework.
@@ -358,7 +414,7 @@ public class GenericAsyncCoalescingStatisticsAppender {
                     new GroupingStatisticsIterator(new StopWatchesFromQueueIterator(),
                                                    timeSlice,
                                                    createRollupStatistics);
-
+            
             while (statsIterator.hasNext()) {
                 try {
                     getHandler().handle(statsIterator.next());
@@ -401,24 +457,25 @@ public class GenericAsyncCoalescingStatisticsAppender {
             return timeSliceOver || nextStopWatch != null;
         }
 
-        public StopWatch next() {
-            if (timeSliceOver) {
-                timeSliceOver = false;
-                return null;
-            } else if (nextStopWatch == null) {
-                nextStopWatch = getNext(); //then try to get it, and barf if there is no more
-                if (nextStopWatch == null) {
-                    throw new NoSuchElementException();
-                }
-            }
+		public StopWatch next() {
+			if (timeSliceOver) {
+				timeSliceOver = false;
+				return null;
+			} else if (nextStopWatch == null) {
+				nextStopWatch = getNext(); // then try to get it, and barf if
+											// there is no more
+				if (nextStopWatch == null) {
+					throw new NoSuchElementException();
+				}
+			}
 
-            StopWatch retVal = nextStopWatch;
-            nextStopWatch = null;
-            if (retVal != null) {
-		getHandler().handle(retVal);
-	    }
-            return retVal;
-        }
+			StopWatch retVal = nextStopWatch;
+			nextStopWatch = null;
+			if (retVal != null) {
+				getHandler().handle(retVal);
+			}
+			return retVal;
+		}
 
         public void remove() {
             throw new UnsupportedOperationException();
