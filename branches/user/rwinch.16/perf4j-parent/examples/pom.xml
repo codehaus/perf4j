@@ -11,7 +11,4 @@
   <version>0.9.12-SNAPSHOT</version>
   <name>Perf4j Examples</name>
   <description>Contains modules that have examples of using Perf4j</description>
-  <modules>
-  	<module>dao-graphing-servlet</module>
-  </modules>
 </project>

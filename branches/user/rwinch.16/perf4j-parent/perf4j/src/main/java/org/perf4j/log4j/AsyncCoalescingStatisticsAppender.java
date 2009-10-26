@@ -15,6 +15,12 @@
  */
 package org.perf4j.log4j;
 
+import java.io.Flushable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -25,9 +31,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.StopWatch;
 import org.perf4j.helpers.GenericAsyncCoalescingStatisticsAppender;
-
-import java.util.Enumeration;
-import java.io.Flushable;
+import org.perf4j.helpers.GenericAsyncCoalescingStatisticsAppender.StopWatchEventHandler;
 
 /**
  * This log4j Appender groups StopWatch log messages together to form GroupedTimingStatistics. At a scheduled interval
@@ -61,6 +65,8 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      * The downstream appenders are contained in this AppenderAttachableImpl
      */
     private final AppenderAttachableImpl downstreamAppenders = new AppenderAttachableImpl();
+    
+    private final List<StopWatchEventHandler> stopWatchEventHandlers = Collections.synchronizedList(new ArrayList());
 
     /**
      * This shutdown hook is needed to flush the appender on JVM shutdown so that all messages are logged.
@@ -201,16 +207,15 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
                 }
             }
             
-            public void handle(StopWatch stopWatch) {
-                LoggingEvent stopWatchEvent = createEvent(stopWatch);
+            public void handle(StopWatch stopWatch) {                
                 try {
-                    synchronized (downstreamAppenders) {
-                        downstreamAppenders.appendLoopOnAppenders(stopWatchEvent);
-                    }
+                	for(StopWatchEventHandler handler : stopWatchEventHandlers) {
+                		handler.handle(stopWatch);
+                	}
                 } catch (Exception e) {
                     getErrorHandler().error(
                             "Exception calling append with StopWatch on downstream appender",
-                            e, -1, stopWatchEvent
+                            e, -1, createEvent(stopWatch)
                     );
                 }
             }
@@ -219,14 +224,12 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
                 getErrorHandler().error(errorMessage);
             }
             
-            private LoggingEvent createEvent(Object message) {
-        	return new LoggingEvent(Logger.class.getName(),
-                        Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
-                        System.currentTimeMillis(),
-                        downstreamLogLevel,
-                        message,
-                        null);
-            }
+			private LoggingEvent createEvent(Object message) {
+				return new LoggingEvent(Logger.class.getName(), Logger
+						.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
+						System.currentTimeMillis(), downstreamLogLevel,
+						message, null);
+			}
         });
 
         //Also, we add a shutdown hook that will attempt to flush any pending log events in the queue.
@@ -258,6 +261,9 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
     public void addAppender(Appender appender) {
         synchronized (downstreamAppenders) {
             downstreamAppenders.addAppender(appender);
+        }
+        if(appender instanceof StopWatchEventHandler) {
+        	stopWatchEventHandlers.add((StopWatchEventHandler)appender);
         }
     }
 
