@@ -29,11 +29,18 @@ package org.perf4j;
  * @author Alex Devine
  */
 public class LoggingStopWatch extends StopWatch {
-
-    /**
+	private static final long serialVersionUID = 5136360525535883840L;
+	
+	/**
      * This threshold determines if a log call will be made. Only elapsed times greater than this amount will be logged.
      */
     private long timeThreshold = 0L;
+    
+    /**
+     * When not null, and timeThreshold > 0l, this suffix will be appended to the tag name when the elapsed time is greater
+     * than the timeThreshold. This "new tag" will be logged in addition to the existing tag which will always be logged.
+     */
+    private String thresholdTagSuffix = null;
 
     // --- Constructors ---
 
@@ -105,7 +112,30 @@ public class LoggingStopWatch extends StopWatch {
         this.timeThreshold = timeThreshold;
         return this;
     }
-
+    
+    /**
+     * The suffix that will be appended to the tag if the elapsed time is greater than the timeThreshold.
+     * This newly created tag will record the event in addition to the regular tag.  This is so that measurements can be made 
+     * (such as availability) that need to measure the amount of time that a system is not performing correctly.
+     * @return the suffix that will be appeneded to the a new tag/event if the elapsed time is greater than the timeThreshold.
+     */
+    public String getThresholdTagSuffix() {
+		return thresholdTagSuffix;
+	}
+    
+    /**
+     * Sets the suffix that will be used to append to a newly created tag that will record the event in addition
+     * to the regular tag.  By duplicating the tag/event measurements can be made (such as availability) that need to
+     * measure the amount of time that a system is not performing correctly.
+     * @param thresholdTagSuffix The suffix to append to the "duplicate" tag that will be used to record the failing event
+     * @return this instance, for use with method chaining if desired
+     */
+    @SuppressWarnings("unchecked")
+	public <SW extends LoggingStopWatch> SW setThresholdTagSuffix(String thresholdTagSuffix) {
+		this.thresholdTagSuffix = thresholdTagSuffix;
+		return (SW)this;
+	}
+    
     // Just overridden to make use of covariant return types
     public LoggingStopWatch setTag(String tag) {
         super.setTag(tag);
@@ -236,6 +266,9 @@ public class LoggingStopWatch extends StopWatch {
         //in most cases timeThreshold will be 0, so just short circuit out as fast as possible
         if (timeThreshold == 0 || getElapsedTime() >= timeThreshold) {
             log(stopWatchAsString, exception);
+            if (timeThreshold != 0 && thresholdTagSuffix != null) {
+            	log(toString(getStartTime(), getElapsedTime(), getTag() + thresholdTagSuffix, getMessage()), exception);
+            }
         }
     }
 }
