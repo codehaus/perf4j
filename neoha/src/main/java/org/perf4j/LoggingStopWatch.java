@@ -192,8 +192,9 @@ public class LoggingStopWatch extends StopWatch {
      * Otherwise, use the superclass's tag.
      */
     public String getTag() {
+    	long timeThreshold = getTimeThreshold(); // so that child classes can override
     	return isNormalAndSlowSuffixesEnabled() ? 
-                super.getTag() + (getElapsedTime() >= getTimeThreshold() ? getSlowSuffix() : getNormalSuffix()) : 
+                super.getTag() + (timeThreshold>0 && getElapsedTime() >= timeThreshold ? getSlowSuffix() : getNormalSuffix()) : 
                 super.getTag(); 
     }
 
