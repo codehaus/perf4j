@@ -155,7 +155,7 @@ public class LoggingStopWatch extends StopWatch {
      * @param normalSuffix the suffix to append if normalAndSlowSuffixesEnabled and the elapsedtime is under the threshold
      */
     public LoggingStopWatch setNormalSuffix(String normalSuffix) {
-    	if(normalSuffix==null || "".equals(normalSuffix)) {
+    	if (normalSuffix == null || "".equals(normalSuffix)) {
     		throw new IllegalArgumentException("normalSuffix cannot be blank. param=" + normalSuffix);
     	}
 		this.normalSuffix = normalSuffix;
@@ -177,7 +177,7 @@ public class LoggingStopWatch extends StopWatch {
      * @param slowSuffix the suffix to append if normalAndSlowSuffixesEnabled and the elapsedtime is under the threshold
      */
     public LoggingStopWatch setSlowSuffix(String slowSuffix) {
-    	if(slowSuffix==null || "".equals(slowSuffix)) {
+    	if (slowSuffix == null || "".equals(slowSuffix)) {
     		throw new IllegalArgumentException("slowSuffix cannot be blank. param=" + slowSuffix);
     	}
 		this.slowSuffix = slowSuffix;
@@ -192,15 +192,9 @@ public class LoggingStopWatch extends StopWatch {
      * Otherwise, use the superclass's tag.
      */
     public String getTag() {
-    	String tag = super.getTag();
-    	if(isNormalAndSlowSuffixesEnabled()) {
-    		long timeThreshold = getTimeThreshold();
-        	if(timeThreshold > 0 && getElapsedTime() >= timeThreshold) {
-        		return tag + getSlowSuffix();
-        	}
-        	return tag + getNormalSuffix();
-    	}
-    	return tag;
+    	return isNormalAndSlowSuffixesEnabled() ? 
+                super.getTag() + (getElapsedTime() >= getTimeThreshold() ? getSlowSuffix() : getNormalSuffix()) : 
+                super.getTag(); 
     }
 
     // Just overridden to make use of covariant return types
@@ -322,6 +316,7 @@ public class LoggingStopWatch extends StopWatch {
     }
 
     // --- Object Methods ---
+    
     public LoggingStopWatch clone() {
         return (LoggingStopWatch) super.clone();
     }
@@ -335,7 +330,7 @@ public class LoggingStopWatch extends StopWatch {
     	//in most cases timeThreshold will be 0, so just short circuit out as fast as possible
     	long elapsedTime = getElapsedTime(); // to allow for subclasses to override this value
     	long timeThreshold = getTimeThreshold(); // to allow for subclasses to override this value
-    	if (isNormalAndSlowSuffixesEnabled() || timeThreshold == 0 || elapsedTime >= timeThreshold) {
+    	if (timeThreshold == 0 || isNormalAndSlowSuffixesEnabled() || elapsedTime >= timeThreshold) {
             log(stopWatchAsString, exception);
         }
     }
