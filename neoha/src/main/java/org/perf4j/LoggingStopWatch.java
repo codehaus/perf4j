@@ -28,19 +28,29 @@ package org.perf4j;
  *
  * @author Alex Devine
  */
+@SuppressWarnings("serial")
 public class LoggingStopWatch extends StopWatch {
-	private static final long serialVersionUID = 5136360525535883840L;
-	
 	/**
      * This threshold determines if a log call will be made. Only elapsed times greater than this amount will be logged.
      */
     private long timeThreshold = 0L;
     
     /**
-     * When not null, and timeThreshold > 0l, this suffix will be appended to the tag name when the elapsed time is greater
-     * than the timeThreshold. This "new tag" will be logged in addition to the existing tag which will always be logged.
+     * Set this to true if both normal and slow suffixes should be appended to every StopWatch tag.
      */
-    private String thresholdTagSuffix = null;
+    private boolean normalAndSlowSuffixesEnabled = false;
+    
+    /**
+     * If normalAndSlowSuffixesEnabled == true then this suffix will be appended to the tag for elapsedTimes < timeThreshold.
+     * If normalAndSlowSuffixesEnabled == true and timeThreshold == 0 then this suffix will ALWAYS be appended to the tag.
+     */
+    private String normalSuffix = ".normal";
+    
+    /**
+     * If normalAndSlowSuffixesEnabled == true then this suffix will be appended to the tag for elapsedTimes >= timeThreshold.
+     * If normalAndSlowSuffixesEnabled == true and timeThreshold == 0 then this suffix will NEVER be appended to the tag.
+     */
+    private String slowSuffix = ".slow";
 
     // --- Constructors ---
 
@@ -114,28 +124,85 @@ public class LoggingStopWatch extends StopWatch {
     }
     
     /**
-     * The suffix that will be appended to the tag if the elapsed time is greater than the timeThreshold.
-     * This newly created tag will record the event in addition to the regular tag.  This is so that measurements can be made 
-     * (such as availability) that need to measure the amount of time that a system is not performing correctly.
-     * @return the suffix that will be appeneded to the a new tag/event if the elapsed time is greater than the timeThreshold.
+     * Determines whether or not to append normalSuffix or slowSuffix to every tag logged by this stopwatch.
+     * @return whether or not to append normalSuffix or slowSuffix to every tag logged by this stopwatch.
      */
-    public String getThresholdTagSuffix() {
-		return thresholdTagSuffix;
+    public boolean isNormalAndSlowSuffixesEnabled() {
+		return normalAndSlowSuffixesEnabled;
 	}
     
     /**
-     * Sets the suffix that will be used to append to a newly created tag that will record the event in addition
-     * to the regular tag.  By duplicating the tag/event measurements can be made (such as availability) that need to
-     * measure the amount of time that a system is not performing correctly.
-     * @param thresholdTagSuffix The suffix to append to the "duplicate" tag that will be used to record the failing event
-     * @return this instance, for use with method chaining if desired
+     * Sets whether to append normalSuffix and slowSuffix when timeThreshold &gt; 0 AND elapsedTime &gt;= timeThreshold
+     * @param normalAndSlowSuffixesEnabled true enables logging extra suffixes to normal and slow events; false (default) suppresses the suffixes 
      */
-    @SuppressWarnings("unchecked")
-	public <SW extends LoggingStopWatch> SW setThresholdTagSuffix(String thresholdTagSuffix) {
-		this.thresholdTagSuffix = thresholdTagSuffix;
-		return (SW)this;
+    public LoggingStopWatch setNormalAndSlowSuffixesEnabled(boolean normalAndSlowSuffixesEnabled) {
+		this.normalAndSlowSuffixesEnabled = normalAndSlowSuffixesEnabled;
+		return this;
 	}
     
+    /**
+     * The suffix to append to the tag if normalAndSlowSuffixesEnabled=true and elapsedTime &lt; timeThreshold and timeThreshold &gt; 0.
+     * Default is ".normal".
+     * @return the suffix to append if normalAndSlowSuffixesEnabled=true and the event was normal and under the threshold
+     */
+    public String getNormalSuffix() {
+		return normalSuffix;
+	}
+    
+    /**
+     * Sets the suffix to use when normalAndSlowSuffixesEnabled=true and timeThreshold &gt; 0 and elapsedTime &lt; timeThreshold.
+     * Setting this to "" is equivalent to setting to null.
+     * @param normalSuffix the suffix to append if normalAndSlowSuffixesEnabled and the elapsedtime is under the threshold
+     */
+    public LoggingStopWatch setNormalSuffix(String normalSuffix) {
+    	if(normalSuffix==null || "".equals(normalSuffix)) {
+    		throw new IllegalArgumentException("normalSuffix cannot be blank. param=" + normalSuffix);
+    	}
+		this.normalSuffix = normalSuffix;
+		return this;
+	}
+    
+    /**
+     * The suffix to append to the tag if normalAndSlowSuffixesEnabled=true and elapsedTime &gt;= timeThreshold and timeThreshold &gt; 0.
+     * Default is ".slow"
+     * @return the suffix to append if normalAndSlowSuffixesEnabled=true and the event was slow and over the threshold.
+     */
+    public String getSlowSuffix() {
+		return slowSuffix;
+	}
+    
+    /**
+     * Sets the suffix to use when normalAndSlowSuffixesEnabled=true and timeThreshold &gt;  0 and elapsedTime &gt;= timeThreshold.
+     * Setting this to "" is equivalent to setting to null.
+     * @param slowSuffix the suffix to append if normalAndSlowSuffixesEnabled and the elapsedtime is under the threshold
+     */
+    public LoggingStopWatch setSlowSuffix(String slowSuffix) {
+    	if(slowSuffix==null || "".equals(slowSuffix)) {
+    		throw new IllegalArgumentException("slowSuffix cannot be blank. param=" + slowSuffix);
+    	}
+		this.slowSuffix = slowSuffix;
+		return this;
+	}
+    
+    /* 
+     * If normalAndSlowSuffixesEnabled AND timeThreshold >0 AND elapsedTime >= timeThreshold
+     * then append slow suffix.<br/>
+     * If normalAndSlowSuffixesEnabled AND (timeThreshold <=0 OR elapsedTime < timeThreshold)
+     * then append normal suffix.<br/>
+     * Otherwise, use the superclass's tag.
+     */
+    public String getTag() {
+    	String tag = super.getTag();
+    	if(isNormalAndSlowSuffixesEnabled()) {
+    		long timeThreshold = getTimeThreshold();
+        	if(timeThreshold > 0 && getElapsedTime() >= timeThreshold) {
+        		return tag + getSlowSuffix();
+        	}
+        	return tag + getNormalSuffix();
+    	}
+    	return tag;
+    }
+
     // Just overridden to make use of covariant return types
     public LoggingStopWatch setTag(String tag) {
         super.setTag(tag);
@@ -255,7 +322,6 @@ public class LoggingStopWatch extends StopWatch {
     }
 
     // --- Object Methods ---
-
     public LoggingStopWatch clone() {
         return (LoggingStopWatch) super.clone();
     }
@@ -263,12 +329,14 @@ public class LoggingStopWatch extends StopWatch {
     // --- Private Methods ---
     // Helper method only calls log if elapsed time is greater than the time threshold
     private void doLogInternal(String stopWatchAsString, Throwable exception) {
-        //in most cases timeThreshold will be 0, so just short circuit out as fast as possible
-        if (timeThreshold == 0 || getElapsedTime() >= timeThreshold) {
+    	//if normalAndSlowSuffixesEnabled then always log with the suffixes added
+    	//getTag() should take care of appending the correct tag, and should already be part of stopWatchAsString
+        //Otherwise we default to the backward-compatible behavior: namely:
+    	//in most cases timeThreshold will be 0, so just short circuit out as fast as possible
+    	long elapsedTime = getElapsedTime(); // to allow for subclasses to override this value
+    	long timeThreshold = getTimeThreshold(); // to allow for subclasses to override this value
+    	if (isNormalAndSlowSuffixesEnabled() || timeThreshold == 0 || elapsedTime >= timeThreshold) {
             log(stopWatchAsString, exception);
-            if (timeThreshold != 0 && thresholdTagSuffix != null) {
-            	log(toString(getStartTime(), getElapsedTime(), getTag() + thresholdTagSuffix, getMessage()), exception);
-            }
         }
     }
 }

@@ -277,15 +277,12 @@ public class StopWatch implements Serializable, Cloneable {
 
     // --- Object Methods ---
     
-    public String toString(long startTime, long elapsedTime, String tag, String message) {
-        return "start[" + startTime +
-        "] time[" + getElapsedTime() +
-        "] tag[" + tag +
-        ((message == null) ? "]" : "] message[" + message + "]");
-    }
-
     public String toString() {
-    	return toString(startTime, getElapsedTime(), tag, message);
+    	String message = getMessage();
+    	return "start[" + getStartTime() +
+        "] time[" + getElapsedTime() +
+        "] tag[" + getTag() +
+        ((message == null) ? "]" : "] message[" + message + "]");
     }
 
     public StopWatch clone() {
